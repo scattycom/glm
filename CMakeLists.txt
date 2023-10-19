@@ -8,5 +8,8 @@ project(demo CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# 收集src目录下的所有.cpp文件
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+
 # 添加一个可执行文件
-add_executable(demo main.cpp)
+add_executable(demo ${SOURCES})
