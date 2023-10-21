@@ -13,3 +13,13 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # 添加一个可执行文件
 add_executable(demo ${SOURCES})
+
+# 添加第三方库的CMake文件夹路径，假设它位于third_party/glfw
+add_subdirectory(third_party/glfw)
+
+# 链接第三方库
+target_link_libraries(demo PRIVATE  glfw)
+
+find_package(Vulkan REQUIRED)
+target_include_directories(demo PRIVATE ${Vulkan_INCLUDE_DIRS})
+target_link_libraries(demo PRIVATE ${Vulkan_LIBRARIES})
