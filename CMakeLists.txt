@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10)
 project(demo CXX)
 
 # 指定C++标准
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 收集src目录下的所有.cpp文件
@@ -13,6 +13,7 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 list(APPEND SOURCES "third_party/glad/src/glad.c")
 # 在Visual Studio中创建一个筛选器
 source_group("third_party" FILES "third_party/glad/src/glad.c")
+source_group("shaders" FILES "src/shaders/frag.spv" "src/shaders/vert.spv")
 
 # 添加一个可执行文件
 add_executable(demo ${SOURCES})
