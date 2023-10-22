@@ -1,19 +1,19 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-
+#include <vulkan/vulkan.h>
 #include <iostream>
 
 int main() {
-	// ³õÊ¼»¯GLFW
+	// åˆå§‹åŒ–GLFW
 	if (!glfwInit()) {
 		std::cerr << "Failed to initialize GLFW." << std::endl;
 		return -1;
 	}
 
-	// ÉèÖÃGLFW²»Ê¹ÓÃOpenGL
+	// è®¾ç½®GLFWä¸ä½¿ç”¨OpenGL
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-	// ´´½¨´°¿Ú
+	// åˆ›å»ºçª—å£
 	GLFWwindow* window = glfwCreateWindow(800, 600, "Vulkan Demo", nullptr, nullptr);
 	if (!window) {
 		std::cerr << "Failed to create GLFW window." << std::endl;
@@ -21,7 +21,7 @@ int main() {
 		return -1;
 	}
 
-	// ³õÊ¼»¯Vulkan
+	// åˆå§‹åŒ–Vulkan
 	VkInstance instance;
 	VkApplicationInfo appInfo = {};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -40,12 +40,12 @@ int main() {
 		return -1;
 	}
 
-	// Ö÷Ñ­»·
+	// ä¸»å¾ªç¯
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 	}
 
-	// ÇåÀí
+	// æ¸…ç†
 	vkDestroyInstance(instance, nullptr);
 	glfwDestroyWindow(window);
 	glfwTerminate();

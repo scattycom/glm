@@ -17,3 +17,8 @@ add_executable(demo ${SOURCES})
 find_package(Vulkan REQUIRED)
 target_include_directories(demo PRIVATE ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(demo PRIVATE ${Vulkan_LIBRARIES})
+
+add_subdirectory(third_party/glfw)
+
+# 链接第三方库
+target_link_libraries(demo PRIVATE  glfw)
