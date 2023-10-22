@@ -23,6 +23,12 @@ int main() {
 		return -1;
 	}
 
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		std::cerr << "Failed to initialize GLAD" << std::endl;
+		return -1;
+	}
+
+
 	// 初始化Vulkan
 	VkInstance instance;
 	VkApplicationInfo appInfo = {};
