@@ -1,8 +1,10 @@
 #define GLFW_INCLUDE_VULKAN
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 #include <iostream>
 
+#if 1
 int main() {
 	// 初始化GLFW
 	if (!glfwInit()) {
@@ -52,3 +54,4 @@ int main() {
 
 	return 0;
 }
+#endif
