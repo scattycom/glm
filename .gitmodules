@@ -1,3 +1,0 @@
-[submodule "thrid_party/glfw"]
-	path = thrid_party/glfw
-	url = https://github.com/glfw/glfw.git
