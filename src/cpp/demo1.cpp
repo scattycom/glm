@@ -1,4 +1,4 @@
-#include"header/TestFBO.h"
+#include"../header/TestFBO.h"
 //#include"main.cpp"
 
 #if !ACTIVE

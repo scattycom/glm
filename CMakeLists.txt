@@ -8,16 +8,24 @@ project(demo CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# 收集src目录下的所有.cpp文件
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+# 收集所有的shader文件
+file(GLOB_RECURSE src "src/cpp/*.cpp")
+file(GLOB_RECURSE shader_list "src/shaders/*.spv")
+
+# 添加shader文件到SOURCES列表
+list(APPEND SOURCES ${shader_list})
+list(APPEND SOURCES ${src})
 list(APPEND SOURCES "third_party/glad/src/glad.c")
-list(APPEND SOURCES "src/shaders/frag.spv" "src/shaders/vert.spv")
+
 # 在Visual Studio中创建筛选器
 source_group("third_party" FILES "third_party/glad/src/glad.c")
-source_group("shaders" FILES "src/shaders/frag.spv" "src/shaders/vert.spv")
+source_group("shaders" FILES ${shader_list})
+source_group("src" FILES ${src})
 
 # 添加一个可执行文件
 add_executable(demo ${SOURCES})
+set_target_properties(demo PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
 
 find_package(Vulkan REQUIRED)
 target_include_directories(demo PRIVATE ${Vulkan_INCLUDE_DIRS})
