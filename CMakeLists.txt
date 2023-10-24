@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 list(APPEND SOURCES "third_party/glad/src/glad.c")
 list(APPEND SOURCES "src/shaders/frag.spv" "src/shaders/vert.spv")
-# 在Visual Studio中创建一个筛选器
+# 在Visual Studio中创建筛选器
 source_group("third_party" FILES "third_party/glad/src/glad.c")
 source_group("shaders" FILES "src/shaders/frag.spv" "src/shaders/vert.spv")
 

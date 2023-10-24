@@ -764,7 +764,7 @@ private:
 	VkFence inFlightFence;
 
 };
-
+#if ACTIVE
 int main() {
 	HelloTriangleApplication app;
 
@@ -778,3 +778,5 @@ int main() {
 
 	return EXIT_SUCCESS;
 }
+#else
+#endif
