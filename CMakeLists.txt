@@ -29,3 +29,5 @@ add_subdirectory(third_party/glfw)
 target_link_libraries(demo PRIVATE  glfw)
 
 include_directories(third_party/glad/include)
+
+target_compile_definitions(demo PRIVATE ACTIVE=1)
