@@ -1,5 +1,4 @@
-#include"../header/TestFBO.h"
-//#include"main.cpp"
+#include"src/header/TestFBO.h"
 
 #if !ACTIVE
 int main()
