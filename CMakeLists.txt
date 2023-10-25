@@ -27,7 +27,8 @@ source_group("src" FILES ${src})
 
 # 添加一个可执行文件
 add_executable(demo ${SOURCES})
-set_target_properties(demo PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+#设置工作目录
+set_target_properties(demo PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/Debug")
 include_directories(${CMAKE_SOURCE_DIR})
 
 find_package(Vulkan REQUIRED)
