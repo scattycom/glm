@@ -49,11 +49,16 @@ set(VULKAN_BIN_DIR "${VULKAN_ROOT_DIR}/bin")
 file(WRITE "vulkan_bin_path.txt" "${VULKAN_BIN_DIR}")
 
 
-include_directories(third_party/glm)
-add_subdirectory(third_party/glfw)
 # 链接第三方库
-target_link_libraries(demo PRIVATE  glfw)
+add_subdirectory(third_party/box2d)
+target_link_libraries(demo PRIVATE  box2d)
 
-include_directories(third_party/glad/include)
+if(NOT TARGET glfw)
+    add_subdirectory(third_party/glfw)
+endif()
+target_link_libraries(demo PRIVATE glfw)
+
+target_include_directories(demo PRIVATE third_party/glm)
+target_include_directories(demo PRIVATE third_party/glad/include)
 
 target_compile_definitions(demo PRIVATE ACTIVE=1)
