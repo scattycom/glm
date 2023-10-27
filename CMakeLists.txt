@@ -51,12 +51,13 @@ file(WRITE "vulkan_bin_path.txt" "${VULKAN_BIN_DIR}")
 
 # 链接第三方库
 add_subdirectory(third_party/box2d)
-target_link_libraries(demo PRIVATE  box2d)
+target_link_libraries(demo PRIVATE box2d)
 
-if(NOT TARGET glfw)
-    add_subdirectory(third_party/glfw)
-endif()
+add_subdirectory(third_party/glfw)
 target_link_libraries(demo PRIVATE glfw)
+
+set_property(TARGET box2d PROPERTY FOLDER "ThirdPartyLibs")
+set_property(TARGET glfw  PROPERTY FOLDER "ThirdPartyLibs")
 
 target_include_directories(demo PRIVATE third_party/glm)
 target_include_directories(demo PRIVATE third_party/glad/include)
