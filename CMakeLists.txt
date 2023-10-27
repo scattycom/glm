@@ -35,6 +35,17 @@ find_package(Vulkan REQUIRED)
 target_include_directories(demo PRIVATE ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(demo PRIVATE ${Vulkan_LIBRARIES})
 
+# 获取Vulkan库文件路径
+get_filename_component(VULKAN_LIB_DIR ${Vulkan_LIBRARY} DIRECTORY)
+
+# 假设bin目录和lib目录是同级的
+get_filename_component(VULKAN_ROOT_DIR ${VULKAN_LIB_DIR} DIRECTORY)
+set(VULKAN_BIN_DIR "${VULKAN_ROOT_DIR}/bin")
+
+# 将bin目录路径写入文件
+file(WRITE "vulkan_bin_path.txt" "${VULKAN_BIN_DIR}")
+
+
 include_directories(third_party/glm)
 add_subdirectory(third_party/glfw)
 # 链接第三方库

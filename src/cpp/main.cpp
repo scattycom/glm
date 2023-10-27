@@ -938,8 +938,49 @@ private:
 	bool framebufferResized = false;
 };
 
+std::string readFileToString(const std::string& filePath) {
+	std::ifstream file(filePath);
+
+	if (!file.is_open()) {
+		std::cerr << "Failed to open the file: " << filePath << std::endl;
+		return "";
+	}
+
+	std::string content;
+	file.seekg(0, std::ios::end);
+	content.reserve(file.tellg());
+	file.seekg(0, std::ios::beg);
+
+	content.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+	return content;
+}
+
+void writeToFile(const std::string& content, const std::string& filePath) {
+	std::ofstream file(filePath);
+
+	if (!file.is_open()) {
+		std::cerr << "Failed to open the file: " << filePath << std::endl;
+		return;
+	}
+
+	file << content;
+	file.close();
+}
+
 #if ACTIVE
 int main() {
+	//生成脚本
+	std::string name = readFileToString("../../vulkan_bin_path.txt");
+	//std::string path="../"
+	std::string content =
+		"cd ..\\..\\src\\shaders\n" +
+		name + "/glslc.exe shader.vert -o vert.spv\n" +
+		name + "/glslc.exe shader.frag -o frag.spv\n";
+
+	std::string filePath = "../../src/shaders/test.bat";  // 替换为你想要的txt文件位置
+	writeToFile(content, filePath);
+
 	system("..\\..\\src\\shaders\\test.bat");
 	HelloTriangleApplication app;
 

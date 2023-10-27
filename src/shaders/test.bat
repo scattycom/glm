@@ -1,3 +1,3 @@
-cd D:\newTtest\test_demo\src\shaders
-C:\VulkanSDK\1.3.231.1\Bin\glslc.exe shader.vert -o vert.spv
-C:\VulkanSDK\1.3.231.1\Bin\glslc.exe shader.frag -o frag.spv
+cd ..\..\src\shaders
+C:/VulkanSDK/1.3.261.1/bin/glslc.exe shader.vert -o vert.spv
+C:/VulkanSDK/1.3.261.1/bin/glslc.exe shader.frag -o frag.spv
