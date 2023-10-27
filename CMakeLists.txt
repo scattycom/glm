@@ -11,8 +11,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # 收集所有的shader文件
 file(GLOB_RECURSE src "src/cpp/*.cpp")
 file(GLOB_RECURSE core "src/core/*.cpp")
-file(GLOB_RECURSE shader_list "src/shaders/*.spv")
 file(GLOB_RECURSE headers "src/header/*.h")
+file(GLOB_RECURSE shader_list "src/shaders/*.spv")
 
 # 添加shader文件到SOURCES列表
 list(APPEND SOURCES ${shader_list})
@@ -23,9 +23,9 @@ list(APPEND SOURCES "third_party/glad/src/glad.c")
 
 # 在Visual Studio中创建筛选器
 source_group("third_party" FILES "third_party/glad/src/glad.c")
-source_group("core" FILES ${core})
 source_group("shaders" FILES ${shader_list})
 source_group("headers" FILES ${headers})
+source_group("core" FILES ${core})
 source_group("src" FILES ${src})
 
 # 添加一个可执行文件
