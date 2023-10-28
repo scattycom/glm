@@ -3,7 +3,7 @@
 
 int main()
 {
-		TestFBO* test = new TestFBO;
-		test->run();
+	TestFBO* test = new TestFBO;
+	test->run();
 }
 

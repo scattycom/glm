@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 收集所有的shader文件
-file(GLOB_RECURSE src "src/src/*.cpp")
+file(GLOB_RECURSE src "src/cpp/*.cpp")
 file(GLOB_RECURSE core "src/core/*.cpp")
 file(GLOB_RECURSE headers "src/header/*.h")
 file(GLOB_RECURSE shader_list "src/shaders/*.spv")
