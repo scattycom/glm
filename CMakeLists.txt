@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 收集所有的shader文件
-file(GLOB_RECURSE src "src/cpp/*.cpp")
+file(GLOB_RECURSE src "src/src/*.cpp")
 file(GLOB_RECURSE core "src/core/*.cpp")
 file(GLOB_RECURSE headers "src/header/*.h")
 file(GLOB_RECURSE shader_list "src/shaders/*.spv")
@@ -48,12 +48,13 @@ file(WRITE "vulkan_bin_path.txt" "${VULKAN_BIN_DIR}")
 
 
 # 链接第三方库
-add_subdirectory(third_party/box2d)
+#glfw
+add_subdirectory(third_party/glfw)
 target_link_libraries(demo PRIVATE glfw)
 set_property(TARGET glfw  PROPERTY FOLDER "ThirdPartyLibs")
-
+#box2d
+add_subdirectory(third_party/box2d)
 target_link_libraries(demo PRIVATE box2d)
-add_subdirectory(third_party/glfw)
 set_property(TARGET box2d PROPERTY FOLDER "ThirdPartyLibs")
 
 target_include_directories(demo PRIVATE third_party/glm)
