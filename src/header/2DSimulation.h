@@ -26,8 +26,6 @@ public:
 	unsigned int setVBO(float* vectives, unsigned int* indices);
 	void SetShader();
 	void run();
-	static void drawQuad();
-
 
 private:
 	std::vector<point> PointList;

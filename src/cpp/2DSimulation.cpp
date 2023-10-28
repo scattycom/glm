@@ -139,7 +139,6 @@ void main()
 void render::run()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	render::drawQuad();
 	while (!glfwWindowShouldClose(_window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
