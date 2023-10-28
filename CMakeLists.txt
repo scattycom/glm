@@ -34,32 +34,30 @@ add_executable(demo ${SOURCES})
 set_target_properties(demo PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/Debug")
 include_directories(${CMAKE_SOURCE_DIR})
 
+#设置Vulkan
 find_package(Vulkan REQUIRED)
 target_include_directories(demo PRIVATE ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(demo PRIVATE ${Vulkan_LIBRARIES})
-
 # 获取Vulkan库文件路径
 get_filename_component(VULKAN_LIB_DIR ${Vulkan_LIBRARY} DIRECTORY)
-
 # 假设bin目录和lib目录是同级的
 get_filename_component(VULKAN_ROOT_DIR ${VULKAN_LIB_DIR} DIRECTORY)
 set(VULKAN_BIN_DIR "${VULKAN_ROOT_DIR}/bin")
-
 # 将bin目录路径写入文件
 file(WRITE "vulkan_bin_path.txt" "${VULKAN_BIN_DIR}")
 
 
 # 链接第三方库
 add_subdirectory(third_party/box2d)
-target_link_libraries(demo PRIVATE box2d)
-
-add_subdirectory(third_party/glfw)
 target_link_libraries(demo PRIVATE glfw)
-
-set_property(TARGET box2d PROPERTY FOLDER "ThirdPartyLibs")
 set_property(TARGET glfw  PROPERTY FOLDER "ThirdPartyLibs")
+
+target_link_libraries(demo PRIVATE box2d)
+add_subdirectory(third_party/glfw)
+set_property(TARGET box2d PROPERTY FOLDER "ThirdPartyLibs")
 
 target_include_directories(demo PRIVATE third_party/glm)
 target_include_directories(demo PRIVATE third_party/glad/include)
 
 target_compile_definitions(demo PRIVATE ACTIVE=1)
+

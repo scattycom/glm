@@ -982,7 +982,7 @@ void setBat()
 	writeToFile(content, filePath);
 }
 
-#if ACTIVE
+#if 0
 int main() {
 	setBat();
 	printf("！！！！！！！！！園咎shader！！！！！！！！！！！！！");

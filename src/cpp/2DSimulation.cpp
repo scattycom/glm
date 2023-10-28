@@ -1,113 +1,157 @@
-//#include <glad/glad.h>
-//#include <GLFW/glfw3.h>
-//#include <Box2D/Box2D.h>
-//#include <iostream>
-//
-//
-//int main()
-//{
-//	if (!glfwInit()) {
-//		std::cout << "GLFW initialization failed" << std::endl;
-//		return -1;
-//	}
-//
-//	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-//	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-//
-//	GLFWwindow* window = glfwCreateWindow(800, 600, "Box2D with GLFW and GLAD", NULL, NULL);
-//	if (!window) {
-//		std::cout << "Window creation failed" << std::endl;
-//		glfwTerminate();
-//		return -1;
-//	}
-//
-//	glfwMakeContextCurrent(window);
-//
-//	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-//		std::cout << "GLAD initialization failed" << std::endl;
-//		return -1;
-//	}
-//
-//	// 定义世界的重力
-//	b2Vec2 gravity(0.0f, -9.8f);
-//
-//	// 创建一个Box2D世界
-//	b2World world(gravity);
-//
-//	// 创建地面
-//	{
-//		b2BodyDef groundBodyDef;
-//		groundBodyDef.position.Set(0.0f, -10.0f);
-//
-//		b2Body* groundBody = world.CreateBody(&groundBodyDef);
-//
-//		b2PolygonShape groundBox;
-//		groundBox.SetAsBox(50.0f, 10.0f);
-//
-//		groundBody->CreateFixture(&groundBox, 0.0f);
-//	}
-//
-//	// 创建一个掉落的方块
-//	{
-//		b2BodyDef bodyDef;
-//		bodyDef.type = b2_dynamicBody;
-//		bodyDef.position.Set(0.0f, 4.0f);
-//
-//		b2Body* body = world.CreateBody(&bodyDef);
-//
-//		b2PolygonShape dynamicBox;
-//		dynamicBox.SetAsBox(1.0f, 1.0f);
-//
-//		b2FixtureDef fixtureDef;
-//		fixtureDef.shape = &dynamicBox;
-//		fixtureDef.density = 1.0f;
-//		fixtureDef.friction = 0.3f;
-//
-//		body->CreateFixture(&fixtureDef);
-//	}
-//
-//	// 模拟物理世界
-//	float timeStep = 1.0f / 60.0f;
-//	int32 velocityIterations = 6;
-//	int32 positionIterations = 2;
-//
-//	for (int32 i = 0; i < 60; ++i) {
-//		world.Step(timeStep, velocityIterations, positionIterations);
-//
-//		b2Body* body = world.GetBodyList();
-//		b2Vec2 position = body->GetPosition();
-//		float angle = body->GetAngle();
-//
-//		std::cout << "Iteration: " << i
-//			<< " | x: " << position.x
-//			<< " | y: " << position.y
-//			<< " | angle: " << angle << std::endl;
-//	}
-//
-//	while (!glfwWindowShouldClose(window)) {
-//		glClear(GL_COLOR_BUFFER_BIT);
-//
-//		// 模拟物理世界
-//		world.Step(timeStep, velocityIterations, positionIterations);
-//
-//		b2Body* body = world.GetBodyList();
-//		b2Vec2 position = body->GetPosition();
-//		// ...（此处可以使用OpenGL来绘制方块）
-//
-//		// 用OpenGL绘制方块（简化示例）
-//		glBegin(GL_QUADS);
-//		glVertex2f(position.x - 1.0f, position.y - 1.0f);
-//		glVertex2f(position.x + 1.0f, position.y - 1.0f);
-//		glVertex2f(position.x + 1.0f, position.y + 1.0f);
-//		glVertex2f(position.x - 1.0f, position.y + 1.0f);
-//		glEnd();
-//
-//		// 交换缓冲区和轮询事件
-//		glfwSwapBuffers(window);
-//		glfwPollEvents();
-//	}
-//
-//	glfwDestroyWindow(window);
-//	glfwTerminate();
-//
-//}
+#include"../header/2DSimulation.h"
+#include<iostream>
+
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
+void render::init()
+{
+	if (!glfwInit())
+		return;
+
+	_window = glfwCreateWindow(800, 600, "FBO", NULL, NULL);
+	if (!_window)
+	{
+		glfwTerminate();
+		return;
+	}
+	glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
+
+	glfwMakeContextCurrent(_window);
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		return;
+	}
+
+	float vertices[] =
+	{
+		-0.5,-0.5,
+		 0.5,-0.5,
+		 0.5, 0.5,
+		-0.5, 0.5
+	};
+
+	unsigned int indices[] =
+	{
+		0,1,2,
+		0,2,3
+	};
+	_vao = setVBO(vertices, indices);
+	SetShader();
+}
+
+unsigned int render::setVBO(float* vectives, unsigned int* indices)
+{
+	unsigned int vao, vbo, ibo;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, 20 * sizeof(float), vectives, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	return vao;
+}
+
+void render::SetShader()
+{
+	// 顶点着色器的GLSL源代码
+	const char* vertexShaderSource = R"glsl(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+void main()
+{
+    gl_Position = vec4(aPos, 1.0);
+}
+)glsl";
+
+	// 片段着色器的GLSL源代码
+	const char* fragmentShaderSource = R"glsl(
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(1.0, 0.5, 0.2, 1.0);
+}
+)glsl";
+
+	// 创建顶点着色器
+	unsigned int vertexShader;
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+
+	// 检查顶点着色器编译是否成功
+	int success;
+	char infoLog[512];
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+	// 创建片段着色器
+	unsigned int fragmentShader;
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+
+	// 检查片段着色器编译是否成功
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+	// 创建着色器程序并链接着色器
+	shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+	// 检查链接是否成功
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+
+	// 删除着色器对象，它们已经链接到着色器程序，不再需要
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+}
+
+void render::run()
+{
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	render::drawQuad();
+	while (!glfwWindowShouldClose(_window))
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glBindVertexArray(_vao);
+		glUseProgram(shaderProgram);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glfwSwapBuffers(_window);
+		glfwPollEvents();
+	}
+
+
+
+}
