@@ -12,11 +12,10 @@ void TestFBO::init()
 		glfwTerminate();
 		return;
 	}
-
 	glfwMakeContextCurrent(_window);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 	}
-
+	std::cout << glGetString(GL_VERSION) << std::endl;
 	float vertices[] =
 	{
 		-0.5,-0.5,0,0,0,

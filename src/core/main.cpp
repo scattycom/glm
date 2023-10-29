@@ -1,7 +1,7 @@
 #include"src/header/TestFBO.h"
 #include"src/header/2DSimulation.h"
 
-#if 0
+#if !ACTIVE
 int main()
 {
 	TestFBO* test = new TestFBO;
