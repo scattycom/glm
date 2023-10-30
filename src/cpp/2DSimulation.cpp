@@ -48,7 +48,7 @@ void scene::createInstance()
 	b2Body* body = _world.CreateBody(&bodyDef);
 
 	b2PolygonShape dynamicBox;
-	dynamicBox.SetAsBox(0.25f, 0.25f);
+	dynamicBox.SetAsBox(0.05f, 0.05f);
 
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &dynamicBox;
@@ -85,13 +85,13 @@ void initVerAndIndex(std::vector<float>& vertices, std::vector<unsigned int>& in
 		vertices.push_back(0.025);
 		vertices.push_back(-0.5);
 
-		indices.push_back(0);
-		indices.push_back(1);
-		indices.push_back(2);
-
-		indices.push_back(0);
-		indices.push_back(2);
-		indices.push_back(3);
+		indices.push_back(0 + 4 * i);
+		indices.push_back(1 + 4 * i);
+		indices.push_back(2 + 4 * i);
+						 
+		indices.push_back(0 + 4 * i);
+		indices.push_back(2 + 4 * i);
+		indices.push_back(3 + 4 * i);
 	}
 }
 
@@ -119,7 +119,10 @@ void Render::init()
 	}
 	initVerAndIndex(vertices, indices);
 
-	createInstance();
+	for (int i = 0; i != 100; i++)
+	{
+		createInstance();
+	}
 	initVAO(vertices, indices);
 	SetShader();
 }
@@ -237,7 +240,6 @@ void Render::updatePosition()
 	for (int i = 0; i != num; i++)
 	{
 		b2Vec2 position = list[i]->GetPosition();
-		std::cout << position.x << " " << position.y << std::endl;
 		caculate(i, glm::vec2{ position.x, position.y });
 	}
 	updateVAO(vertices, indices);
