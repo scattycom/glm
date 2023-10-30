@@ -15,6 +15,7 @@
 #include <fstream>
 #include <array>
 #include <cstdlib>
+#include <filesystem>
 #include "glm/glm.hpp"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -500,8 +501,8 @@ private:
 	}
 
 	void createGraphicsPipeline() {
-		auto vertShaderCode = readFile("../../src/shaders/vert.spv");
-		auto fragShaderCode = readFile("../../src/shaders/frag.spv");
+		auto vertShaderCode = readFile("../../src/shaders/complied/vert.spv");
+		auto fragShaderCode = readFile("../../src/shaders/complied/frag.spv");
 
 		VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
 		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -972,13 +973,14 @@ void setBat()
 {
 	//生成脚本
 	std::string name = readFileToString("../../vulkan_bin_path.txt");
-
+	std::string compliedPath = "complied/";
+	std::filesystem::create_directories("../../src/shaders/complied");
 	std::string content =
 		"cd ..\\..\\src\\shaders\n" +
-		name + "/glslc.exe shader.vert -o vert.spv\n" +
-		name + "/glslc.exe shader.frag -o frag.spv\n";
+		name + "/glslc.exe shader.vert -o "+compliedPath+"vert.spv\n" +
+		name + "/glslc.exe shader.frag -o "+compliedPath+"frag.spv\n";
 
-	std::string filePath = "../../src/shaders/test.bat";  // 替换为你想要的txt文件位置
+	std::string filePath = "../../test.bat";  // 替换为你想要的txt文件位置
 	writeToFile(content, filePath);
 }
 
@@ -986,7 +988,7 @@ void setBat()
 int main() {
 	setBat();
 	printf("—————————编译shader—————————————");
-	system("..\\..\\src\\shaders\\test.bat");
+	system("..\\..\\test.bat");
 	HelloTriangleApplication app;
 
 	try {

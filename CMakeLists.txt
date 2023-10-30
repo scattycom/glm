@@ -8,13 +8,13 @@ project(demo CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# 收集所有的shader文件
+# 收集所有文件
 file(GLOB_RECURSE src "src/cpp/*.cpp")
 file(GLOB_RECURSE core "src/core/*.cpp")
 file(GLOB_RECURSE headers "src/header/*.h")
-file(GLOB_RECURSE shader_list "src/shaders/*.spv")
+file(GLOB_RECURSE shader_list "src/shaders/*.vert" "src/shaders/*.frag")
 
-# 添加shader文件到SOURCES列表
+# 添加文件到SOURCES列表
 list(APPEND SOURCES ${shader_list})
 list(APPEND SOURCES ${headers})
 list(APPEND SOURCES ${src})
@@ -51,7 +51,7 @@ file(WRITE "vulkan_bin_path.txt" "${VULKAN_BIN_DIR}")
 #glfw
 add_subdirectory(third_party/glfw)
 target_link_libraries(demo PRIVATE glfw)
-set_property(TARGET glfw  PROPERTY FOLDER "ThirdPartyLibs")
+set_property(TARGET glfw PROPERTY FOLDER "ThirdPartyLibs")
 #box2d
 add_subdirectory(third_party/box2d)
 target_link_libraries(demo PRIVATE box2d)
@@ -61,4 +61,3 @@ target_include_directories(demo PRIVATE third_party/glm)
 target_include_directories(demo PRIVATE third_party/glad/include)
 
 target_compile_definitions(demo PRIVATE ACTIVE=1)
-
