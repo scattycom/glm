@@ -1,37 +1,47 @@
-#include<glm/glm.hpp>
-#include<vector>
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
+#include"TestFBO.h"
+#include <Box2D/Box2D.h>
+#include <memory>
+#include <glm/glm.hpp>
 
-class point
+static std::vector<float> vertices;
+static std::vector<unsigned int> indices;
+static std::vector<b2Body*> list;
+
+class scene
 {
 public:
-	point() {}
-	~point() = default;
+	scene();
 
-	void setPosition(glm::vec3 pos) { _position = pos; }
-
+	void createInstance();
+	void update();
 private:
-	glm::vec3 _position;
+	b2World _world;
 
+	float timeStep = 1.0f / 60.0f;  // 模拟的时间步长
+	int32 velocityIterations = 6; // 速度迭代次数
+	int32 positionIterations = 2; // 位置迭代次数
 };
 
-
-class render
+class Render
 {
 public:
-	render() { init(); }
+	Render();
 
 	void init();
-	unsigned int setVBO(float* vectives, unsigned int* indices);
+	void createInstance();
+	void initVAO(std::vector<float> vertices, std::vector<unsigned int> indices);
+	void updateVAO(std::vector<float> vertices, std::vector<unsigned int> indices);
+	
 	void SetShader();
 	void run();
-
+	void updatePosition();
 private:
-	std::vector<point> PointList;
+	void caculate(int i, glm::vec2 pos);
 
 	GLFWwindow* _window;
-	GLuint _vao, _vao2;
+	GLuint _vao, _vbo, _ibo;
+	std::unique_ptr<scene> _scene;
 	unsigned int shaderProgram;
-};
 
+	int num = 0;
+};
