@@ -63,3 +63,9 @@ int main()
 }
 #else
 #endif
+
+int main()
+{
+	Render* re = new Render;
+	re->run();
+}

@@ -23,60 +23,41 @@ void writeNameToFile(const std::string& name) {
 
 scene::scene() : _world(b2Vec2(0.0f, -9.8f)) // 初始化列表
 {
+	// 创建地面
 	b2BodyDef groundBodyDef;
-	groundBodyDef.position.Set(0.0f, -20.0f); // 地面的位置
+	groundBodyDef.position.Set(0.0f, -1.0f);
 
 	b2Body* groundBody = _world.CreateBody(&groundBodyDef);
 
 	b2PolygonShape groundBox;
-	groundBox.SetAsBox(50.0f, 10.0f); // 设置地面的大小
+	groundBox.SetAsBox(50.0f, 0.5f);
 
-	groundBody->CreateFixture(&groundBox, 0.0f);
+	b2FixtureDef groundFixtureDef;
+	groundFixtureDef.shape = &groundBox;
+	groundFixtureDef.restitution = 0.8f;  // 设置地面弹性系数
+
+	groundBody->CreateFixture(&groundFixtureDef);
 }
 
 void scene::createInstance()
 {
-	//b2BodyDef boxBodyDef;
-	//boxBodyDef.type = b2_dynamicBody; // 设置为动态体，这样它会受到重力的影响
-	//boxBodyDef.position.Set(0.0f, 10.0f); // 初始位置
+	// 创建方块
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+	bodyDef.position.Set(0.0f, 0.9f);
+	b2Body* body = _world.CreateBody(&bodyDef);
 
-	//b2Body* boxBody = _world.CreateBody(&boxBodyDef);
+	b2PolygonShape dynamicBox;
+	dynamicBox.SetAsBox(0.25f, 0.25f);
 
-	//b2PolygonShape boxShape;
-	//boxShape.SetAsBox(1.0f, 1.0f); // 设置为1x1大小的矩形
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = &dynamicBox;
+	fixtureDef.density = 1.0f;
+	fixtureDef.friction = 0.3f;
+	fixtureDef.restitution = 0.5f;  // 添加这一行以设置弹性系数
 
-	//b2FixtureDef boxFixtureDef;
-	//boxFixtureDef.shape = &boxShape;
-	//boxFixtureDef.density = 1.0f; // 密度，用于计算质量
-
-	//boxBody->CreateFixture(&boxFixtureDef);
-	//list.push_back(boxBody);
-		// First box
-		b2BodyDef boxBodyDef1;
-		boxBodyDef1.type = b2_dynamicBody;
-		boxBodyDef1.position.Set(0.0f, 10.0f);
-		b2Body* boxBody1 = _world.CreateBody(&boxBodyDef1);
-		b2PolygonShape boxShape1;
-		boxShape1.SetAsBox(1.0f, 1.0f);
-		b2FixtureDef boxFixtureDef1;
-		boxFixtureDef1.shape = &boxShape1;
-		boxFixtureDef1.density = 1.0f;
-		boxBody1->CreateFixture(&boxFixtureDef1);
-		list.push_back(boxBody1);
-
-		// Second box
-		b2BodyDef boxBodyDef2;
-		boxBodyDef2.type = b2_dynamicBody;
-		boxBodyDef2.position.Set(0.0f, 20.0f);  // Changed position
-		b2Body* boxBody2 = _world.CreateBody(&boxBodyDef2);
-		b2PolygonShape boxShape2;
-		boxShape2.SetAsBox(1.0f, 1.0f);
-		b2FixtureDef boxFixtureDef2;
-		boxFixtureDef2.shape = &boxShape2;
-		boxFixtureDef2.density = 1.0f;
-		boxBody2->CreateFixture(&boxFixtureDef2);
-		list.push_back(boxBody2);
-
+	body->CreateFixture(&fixtureDef);
+	list.push_back(body);
 }
 
 void scene::update()
@@ -145,7 +126,7 @@ void Render::init()
 
 void Render::createInstance()
 {
-	num++; num++;
+	num++;
 
 	_scene->createInstance(); 
 }
@@ -257,7 +238,7 @@ void Render::updatePosition()
 	{
 		b2Vec2 position = list[i]->GetPosition();
 		std::cout << position.x << " " << position.y << std::endl;
-		//caculate(i, glm::vec2{ position.x, position.y });
+		caculate(i, glm::vec2{ position.x, position.y });
 	}
 	updateVAO(vertices, indices);
 }
