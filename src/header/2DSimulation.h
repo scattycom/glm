@@ -4,9 +4,14 @@
 #include <glm/glm.hpp>
 #include<vector>
 
-static std::vector<float> vertices;
-static std::vector<unsigned int> indices;
-static std::vector<b2Body*> list;
+
+struct point
+{
+	glm::vec3 p0;
+	glm::vec3 p1;
+	glm::vec3 p2;
+	glm::vec3 p3;
+};
 
 class scene
 {
@@ -31,9 +36,10 @@ public:
 
 	void init();
 	void createInstance();
-	void initVAO(std::vector<float> vertices, std::vector<unsigned int> indices);
-	void updateVAO(std::vector<float> vertices, std::vector<unsigned int> indices);
-	
+
+	void initVAO();
+	void updateVBO();
+
 	void SetShader();
 	void run();
 	void updatePosition();

@@ -2,6 +2,10 @@
 #include <iostream>
 #include <fstream>
 
+static std::vector<point> vertices1;
+static std::vector<unsigned int> indices;
+static std::vector<b2Body*> list;
+
 void writeNameToFile(const std::string& name) {
 	// 创建一个输出文件流对象并打开文件
 	std::ofstream outfile("output.txt", std::ios::app);  // 打开模式 std::ios::app 表示在文件末尾追加
@@ -28,7 +32,7 @@ scene::scene() : _world(b2Vec2(0.0f, -9.8f)) // 初始化列表
 	groundBodyDef.position.Set(0.0f, -0.5f);
 
 	b2Body* groundBody = _world.CreateBody(&groundBodyDef);
-
+	
 	//b2PolygonShape groundBox;
 	//groundBox.SetAsBox(1.0f, 0.0f);
 
@@ -107,33 +111,25 @@ void scene::update()
 	_world.Step(timeStep, velocityIterations, positionIterations);
 }
 
-void initVerAndIndex(std::vector<float>& vertices, std::vector<unsigned int>& indices)
+void initVerAndIndex()
 {
 	for (int i = 0; i < 1000; i++)
 	{
-		vertices.push_back(-0.025);
-		vertices.push_back(-0.025);
-		vertices.push_back(-0.5);
-
-		vertices.push_back(0.025);
-		vertices.push_back(-0.025);
-		vertices.push_back(-0.5);
-
-		vertices.push_back(0.025);
-		vertices.push_back(0.025);
-		vertices.push_back(-0.5);
-
-		vertices.push_back(-0.025);
-		vertices.push_back(0.025);
-		vertices.push_back(-0.5);
-
 		indices.push_back(0 + 4 * i);
 		indices.push_back(1 + 4 * i);
 		indices.push_back(2 + 4 * i);
-						 
 		indices.push_back(0 + 4 * i);
 		indices.push_back(2 + 4 * i);
 		indices.push_back(3 + 4 * i);
+
+		point p1
+		{ 
+			glm::vec3{-0.025,-0.025,-0.5},
+			glm::vec3{ 0.025,-0.025,-0.5}, 
+			glm::vec3{ 0.025, 0.025,-0.5}, 
+			glm::vec3{-0.025, 0.025,-0.5},
+		};
+		vertices1.push_back(p1);
 	}
 }
 
@@ -159,13 +155,8 @@ void Render::init()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		return;
 	}
-	initVerAndIndex(vertices, indices);
-
-	for (int i = 0; i != 0; i++)
-	{
-		createInstance();
-	}
-	initVAO(vertices, indices);
+	initVerAndIndex();
+	initVAO();
 	SetShader();
 }
 
@@ -177,18 +168,18 @@ void Render::createInstance()
 }
 
 // 初始化阶段：仅执行一次
-void Render::initVAO(std::vector<float> vertices, std::vector<unsigned int> indices)
+void Render::initVAO()
 {
 	glGenVertexArrays(1, &_vao);
 	glBindVertexArray(_vao);
 
 	glGenBuffers(1, &_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices1.size()* 12 * sizeof(float), vertices1.data(), GL_DYNAMIC_DRAW);
 
 	glGenBuffers(1, &_ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned int), indices.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_DYNAMIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -198,15 +189,16 @@ void Render::initVAO(std::vector<float> vertices, std::vector<unsigned int> indi
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-// 更新阶段：每次vertices更新时执行
-void Render::updateVAO(std::vector<float> vertices, std::vector<unsigned int> indices)
+void Render::updateVBO()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 12*num * sizeof(float), vertices.data());
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * num * sizeof(float), vertices1.data());
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 6*num * sizeof(unsigned int), indices.data());
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 6 * num * sizeof(unsigned int), indices.data());
 }
+
+// 更新阶段：每次vertices更新时执行
 
 void Render::SetShader()
 {
@@ -284,31 +276,20 @@ void Render::updatePosition()
 		b2Vec2 position = list[i]->GetPosition();
 		caculate(i, glm::vec2{ position.x, position.y });
 	}
-	updateVAO(vertices, indices);
+	updateVBO();
 }
 
-void Render::caculate(int i, glm::vec2 pos)
+void Render::caculate(int a, glm::vec2 pos)
 {
 	float oldx, oldy;
-	i *= 12;
-	oldx = vertices[i] + vertices[i + 3];
-	oldx /= 2;
-
-	oldy = vertices[i + 1] + vertices[i + 10];
-	oldy /= 2;
+	oldx = (vertices1[a].p0.x + vertices1[a].p1.x) / 2;
+	oldy = (vertices1[a].p0.y + vertices1[a].p3.y) / 2;
 	glm::vec2 temp = { pos.x - oldx, pos.y - oldy };
 
-	vertices[i] += temp.x;
-	vertices[i + 1] += temp.y;
-
-	vertices[i + 3] += temp.x;
-	vertices[i + 4] += temp.y;
-
-	vertices[i + 6] += temp.x;
-	vertices[i + 7] += temp.y;
-
-	vertices[i + 9] += temp.x;
-	vertices[i + 10] += temp.y;
+	vertices1[a].p0 += glm::vec3{ temp.x,temp.y,0 };
+	vertices1[a].p1 += glm::vec3{ temp.x,temp.y,0 };
+	vertices1[a].p2 += glm::vec3{ temp.x,temp.y,0 };
+	vertices1[a].p3 += glm::vec3{ temp.x,temp.y,0 };
 }
 
 void Render::run()
@@ -333,7 +314,6 @@ void Render::run()
 		float xOffset =0.5f*sin(0.1f * timeElapsed);
 		b2Vec2 newPosition(xOffset+0.5, 0.0f); // 更新位置
 		_scene->rightWallBody->SetTransform(newPosition, 0); // 第二个参数是旋转角度，这里设为0
-
 
 		_scene->update();
 		updatePosition();
