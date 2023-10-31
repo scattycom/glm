@@ -5,6 +5,9 @@
 static std::vector<point> vertices1;
 static std::vector<unsigned int> indices;
 static std::vector<b2Body*> list;
+//方块尺寸
+float sizeX = 0.025f;
+float sizeY = 0.025f;
 
 void writeNameToFile(const std::string& name) {
 	// 创建一个输出文件流对象并打开文件
@@ -81,8 +84,6 @@ scene::scene() : _world(b2Vec2(0.0f, -9.8f)) // 初始化列表
 	rightWallFixtureDef.restitution = 0.8f;  // 设置弹性系数
 
 	rightWallBody->CreateFixture(&rightWallFixtureDef);
-
-
 }
 
 void scene::createInstance()
@@ -95,7 +96,7 @@ void scene::createInstance()
 	body->SetBullet(true);
 
 	b2PolygonShape dynamicBox;
-	dynamicBox.SetAsBox(0.025f, 0.025f);
+	dynamicBox.SetAsBox(sizeX, sizeY);
 
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &dynamicBox;
@@ -124,10 +125,10 @@ void initVerAndIndex()
 
 		point p1
 		{ 
-			glm::vec3{-0.025,-0.025,-0.5},
-			glm::vec3{ 0.025,-0.025,-0.5}, 
-			glm::vec3{ 0.025, 0.025,-0.5}, 
-			glm::vec3{-0.025, 0.025,-0.5},
+			glm::vec3{-sizeX,-sizeY,-0.5},
+			glm::vec3{ sizeX,-sizeY,-0.5},
+			glm::vec3{ sizeX, sizeY,-0.5},
+			glm::vec3{-sizeX, sizeY,-0.5},
 		};
 		vertices1.push_back(p1);
 	}
