@@ -44,7 +44,7 @@ public:
 	void run();
 	void updatePosition();
 private:
-	void caculate(int i, glm::vec2 pos);
+	void caculate(int i, glm::vec2 pos, float angle);
 
 	GLFWwindow* _window;
 	GLuint _vao, _vbo, _ibo;
