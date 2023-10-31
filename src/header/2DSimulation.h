@@ -15,12 +15,13 @@ public:
 
 	void createInstance();
 	void update();
+	b2Body* rightWallBody;
 private:
 	b2World _world;
 
 	float timeStep = 1.0f / 60.0f;  // 模拟的时间步长
-	int32 velocityIterations = 6; // 速度迭代次数
-	int32 positionIterations = 2; // 位置迭代次数
+	int32 velocityIterations = 10; // 速度迭代次数
+	int32 positionIterations = 10; // 位置迭代次数
 };
 
 class Render

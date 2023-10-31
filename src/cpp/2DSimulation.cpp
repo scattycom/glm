@@ -25,18 +25,60 @@ scene::scene() : _world(b2Vec2(0.0f, -9.8f)) // 初始化列表
 {
 	// 创建地面
 	b2BodyDef groundBodyDef;
-	groundBodyDef.position.Set(0.0f, -1.0f);
+	groundBodyDef.position.Set(0.0f, -0.5f);
 
 	b2Body* groundBody = _world.CreateBody(&groundBodyDef);
 
-	b2PolygonShape groundBox;
-	groundBox.SetAsBox(50.0f, 0.5f);
+	//b2PolygonShape groundBox;
+	//groundBox.SetAsBox(1.0f, 0.0f);
+
+	b2PolygonShape groundShape;
+
+	// 设置两个顶点，创建一个倾斜的地面
+	b2Vec2 vertices[4];
+	vertices[0].Set(-1.0f, 0.0f); // 第一个顶点
+	vertices[1].Set(-1.0f, -0.1f);  // 第二个顶点
+	vertices[2].Set(2.0f, -0.8f);  // 第二个顶点
+	vertices[3].Set(2.0f, -1.0f);  // 第二个顶点
+	groundShape.Set(vertices, 4);  // 设置顶点数组和顶点数
 
 	b2FixtureDef groundFixtureDef;
-	groundFixtureDef.shape = &groundBox;
+	groundFixtureDef.shape = &groundShape;
 	groundFixtureDef.restitution = 0.8f;  // 设置地面弹性系数
 
 	groundBody->CreateFixture(&groundFixtureDef);
+
+	// 创建左侧的板
+	b2BodyDef leftWallBodyDef;
+	leftWallBodyDef.position.Set(-0.5f, 0.0f); // 假设板的中心在 (-1.0, 0.5)
+
+	b2Body* leftWallBody = _world.CreateBody(&leftWallBodyDef);
+
+	b2PolygonShape leftWallBox;
+	leftWallBox.SetAsBox(0.0f, 2.0f); // 假设板的宽度为 0.02，高度为 0.5
+
+	b2FixtureDef leftWallFixtureDef;
+	leftWallFixtureDef.shape = &leftWallBox;
+	leftWallFixtureDef.restitution = 0.8f;  // 设置弹性系数
+
+	leftWallBody->CreateFixture(&leftWallFixtureDef);
+
+	// 创建右侧的板
+	b2BodyDef rightWallBodyDef;
+	rightWallBodyDef.position.Set(0.3f, 0.0f); // 假设板的中心在 (1.0, 0.5)
+
+	rightWallBody = _world.CreateBody(&rightWallBodyDef);
+
+	b2PolygonShape rightWallBox;
+	rightWallBox.SetAsBox(0.3f, 5.0f); // 假设板的宽度为 0.02，高度为 0.5
+
+	b2FixtureDef rightWallFixtureDef;
+	rightWallFixtureDef.shape = &rightWallBox;
+	rightWallFixtureDef.restitution = 0.8f;  // 设置弹性系数
+
+	rightWallBody->CreateFixture(&rightWallFixtureDef);
+
+
 }
 
 void scene::createInstance()
@@ -46,16 +88,16 @@ void scene::createInstance()
 	bodyDef.type = b2_dynamicBody;
 	bodyDef.position.Set(0.0f, 0.9f);
 	b2Body* body = _world.CreateBody(&bodyDef);
+	body->SetBullet(true);
 
 	b2PolygonShape dynamicBox;
-	dynamicBox.SetAsBox(0.05f, 0.05f);
+	dynamicBox.SetAsBox(0.025f, 0.025f);
 
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &dynamicBox;
 	fixtureDef.density = 1.0f;
 	fixtureDef.friction = 0.3f;
 	fixtureDef.restitution = 0.5f;  // 添加这一行以设置弹性系数
-
 	body->CreateFixture(&fixtureDef);
 	list.push_back(body);
 }
@@ -67,7 +109,7 @@ void scene::update()
 
 void initVerAndIndex(std::vector<float>& vertices, std::vector<unsigned int>& indices)
 {
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 1000; i++)
 	{
 		vertices.push_back(-0.025);
 		vertices.push_back(-0.025);
@@ -119,7 +161,7 @@ void Render::init()
 	}
 	initVerAndIndex(vertices, indices);
 
-	for (int i = 0; i != 100; i++)
+	for (int i = 0; i != 0; i++)
 	{
 		createInstance();
 	}
@@ -142,11 +184,11 @@ void Render::initVAO(std::vector<float> vertices, std::vector<unsigned int> indi
 
 	glGenBuffers(1, &_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-	glBufferData(GL_ARRAY_BUFFER, 12* num * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
 
 	glGenBuffers(1, &_ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6* num * sizeof(unsigned int), indices.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned int), indices.data(), GL_DYNAMIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -267,7 +309,6 @@ void Render::caculate(int i, glm::vec2 pos)
 
 	vertices[i + 9] += temp.x;
 	vertices[i + 10] += temp.y;
-	int a = 10;
 }
 
 void Render::run()
@@ -275,9 +316,25 @@ void Render::run()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glViewport(0, 0, 800, 600);
 	glUseProgram(shaderProgram);
+	float timeElapsed = 0;
+	int a = 0;
 	while (!glfwWindowShouldClose(_window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if (a%50==0&&num<20)
+		{
+			createInstance();
+		}
+		a++;
+
+		timeElapsed += 0.2;
+
+		// 使用简单的正弦函数让板左右移动
+		float xOffset =0.5f*sin(0.1f * timeElapsed);
+		b2Vec2 newPosition(xOffset+0.5, 0.0f); // 更新位置
+		_scene->rightWallBody->SetTransform(newPosition, 0); // 第二个参数是旋转角度，这里设为0
+
+
 		_scene->update();
 		updatePosition();
 
