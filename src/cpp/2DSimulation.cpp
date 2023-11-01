@@ -2,10 +2,11 @@
 #include <iostream>
 #include <fstream>
 
-static std::vector<point> vertices1;
-static std::vector<unsigned int> indices;
+#define count 100000
 static std::vector<b2Body*> list;
-static std::vector<float> angle_list;
+static std::vector<float> old_float;
+
+Sdata s_data;
 
 //方块尺寸
 float sizeX = 0.025f;
@@ -116,30 +117,6 @@ void scene::update()
 	_world.Step(timeStep, velocityIterations, positionIterations);
 }
 
-void initVerAndIndex()
-{
-	for (int i = 0; i < 1000; i++)
-	{
-		indices.push_back(0 + 4 * i);
-		indices.push_back(1 + 4 * i);
-		indices.push_back(2 + 4 * i);
-		indices.push_back(0 + 4 * i);
-		indices.push_back(2 + 4 * i);
-		indices.push_back(3 + 4 * i);
-
-		point p1
-		{ 
-			glm::vec3{-sizeX,-sizeY,-0.5},
-			glm::vec3{ sizeX,-sizeY,-0.5},
-			glm::vec3{ sizeX, sizeY,-0.5},
-			glm::vec3{-sizeX, sizeY,-0.5},
-		};
-		vertices1.push_back(p1);
-
-		angle_list.push_back(0.0);
-	}
-}
-
 Render::Render()
 {
 	_scene = std::make_unique<scene>();
@@ -162,61 +139,123 @@ void Render::init()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		return;
 	}
-	initVerAndIndex();
+
+	for (int i = 0; i != count; i++)
+	{
+		s_data.instance_old_pos.push_back(glm::vec3(0, 0, 0));
+		s_data.instance_new_pos.push_back(glm::vec3(0, 0, 0));
+		s_data.instance_float.push_back(0.0);
+		old_float.push_back(0.0);
+	}
+
 	initVAO();
-	SetShader();
+	setshader();
+
 }
 
-void Render::createInstance()
-{
-	num++;
-
-	_scene->createInstance(); 
-}
-
-// 初始化阶段：仅执行一次
 void Render::initVAO()
 {
+	float vertices[] = {
+		// 顶点坐标
+		-sizeX, -sizeY, 0.0f,
+		 sizeX, -sizeY, 0.0f,
+		 sizeX,  sizeY, 0.0f,
+		-sizeX,  sizeY, 0.0f,
+	};
+
+	unsigned int indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	GLuint VBO, EBO;
 	glGenVertexArrays(1, &_vao);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
 	glBindVertexArray(_vao);
 
-	glGenBuffers(1, &_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices1.size()* 12 * sizeof(float), vertices1.data(), GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &_ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+	// 顶点属性设置
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &_vbo1);
+	glGenBuffers(1, &_vbo2);
+	glGenBuffers(1, &_vbo3);
+
+	// 绑定和填充第一个VBO
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(s_data.instance_old_pos)*3*sizeof(float), &s_data.instance_old_pos[0], GL_DYNAMIC_DRAW);
+
+	// 绑定和填充第二个VBO
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(s_data.instance_new_pos) * 3 * sizeof(float), &s_data.instance_new_pos[0], GL_DYNAMIC_DRAW);
+
+	// 绑定和填充第三个VBO
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo3);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(s_data.instance_float) * 1 * sizeof(float), &s_data.instance_float[0], GL_DYNAMIC_DRAW);
+
+	/*************实例属性1******************/
+	glBindVertexArray(_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribDivisor(1, 1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(2);
+	glVertexAttribDivisor(2, 1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo3);
+	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
+	glEnableVertexAttribArray(3);
+	glVertexAttribDivisor(3, 1);
+
+	// 解绑
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
-void Render::updateVBO()
-{
-	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * num * sizeof(float), vertices1.data());
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 6 * num * sizeof(unsigned int), indices.data());
-}
-
-// 更新阶段：每次vertices更新时执行
-
-void Render::SetShader()
+void Render::setshader()
 {
 	// 顶点着色器的GLSL源代码
 	const char* vertexShaderSource = R"glsl(
 #version 330 core
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 oldpos;
+layout (location = 2) in vec3 newpos;
+layout (location = 3) in float rotate;
+
+out vec2 texCoord;
 
 void main()
 {
-    gl_Position = vec4(aPos, 1.0);
+    // 平移到原点
+    vec3 posTranslated = aPos - oldpos;
+
+    // 旋转（仅在X, Y平面上）
+    float cosTheta = cos(rotate);
+    float sinTheta = sin(rotate);
+    vec3 posRotated;
+    posRotated.x = cosTheta * posTranslated.x - sinTheta * posTranslated.y;
+    posRotated.y = sinTheta * posTranslated.x + cosTheta * posTranslated.y;
+    posRotated.z = posTranslated.z;  // 在Z轴上没有变化
+
+    // 平移到新位置
+    vec3 posFinal = posRotated+newpos;
+
+    gl_Position = vec4(newpos, 1.0)+vec4(aPos,1.0);
 }
 )glsl";
 
@@ -276,78 +315,66 @@ void main()
 	glDeleteShader(fragmentShader);
 }
 
-void Render::updatePosition()
+void Render::update()
 {
+	// 更新第一个VBO (_vbo1)
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo1);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, num*sizeof(float)*3, &s_data.instance_old_pos[0]);
+
+	// 更新第二个VBO (_vbo2)
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo2);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, num * sizeof(float) * 3, &s_data.instance_new_pos[0]);
+
+	// 更新第三个VBO (_vbo3)
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo3);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, num * sizeof(float), &s_data.instance_float[0]);
+
+	// 解绑
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Render::updateData()
+{
+	_scene->update();
 	for (int i = 0; i != num; i++)
 	{
 		b2Vec2 position = list[i]->GetPosition();
-		caculate(i, glm::vec2{ position.x, position.y }, angle_list[i] - list[i]->GetAngle());
-		angle_list[i] = list[i]->GetAngle();
+		float rotate = list[i]->GetAngle() - old_float[i];
+
+		s_data.instance_old_pos[i] = s_data.instance_new_pos[i];
+		s_data.instance_new_pos[i].x = position.x;
+		s_data.instance_new_pos[i].y = position.y;
+		s_data.instance_float[i] = rotate;
+		old_float[i] = list[i]->GetAngle();
 	}
-	updateVBO();
-}
-
-void Render::caculate(int a, glm::vec2 pos, float angle)
-{
-	float oldx, oldy;
-	oldx = (vertices1[a].p0.x + vertices1[a].p1.x) / 2;
-	oldy = (vertices1[a].p0.y + vertices1[a].p3.y) / 2;
-	glm::vec2 temp{ pos.x - oldx, pos.y - oldy };
-
-	glm::vec2 toOrigin = -glm::vec2(oldx, oldy);
-
-	// 构建旋转矩阵
-	glm::mat2 rotationMatrix{
-		cos(angle), -sin(angle),
-		sin(angle), cos(angle)
-	};
-
-	for (auto& p : { &vertices1[a].p0, &vertices1[a].p1, &vertices1[a].p2, &vertices1[a].p3 })
-	{
-		glm::vec2 point(p->x, p->y);
-		point += toOrigin; // 平移至原点
-		point = rotationMatrix * point; // 旋转
-		point += pos; // 更新到新的中心点
-		p->x = point.x;
-		p->y = point.y;
-	}
-
+	update();
 }
 
 void Render::run()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glViewport(0, 0, 800, 600);
-	glUseProgram(shaderProgram);
-	float timeElapsed = 0;
 	int a = 0;
 	while (!glfwWindowShouldClose(_window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		if (a%50==0&&num<20)
-		{
+		updateData();
+		if (a % 50 == 0&&num<40)
 			createInstance();
-		}
 		a++;
-
-		timeElapsed += 0.2;
-
-		// 使用简单的正弦函数让板左右移动
-		float xOffset =0.5f*sin(0.1f * timeElapsed);
-		b2Vec2 newPosition(xOffset+0.5, 0.0f); // 更新位置
-		_scene->rightWallBody->SetTransform(newPosition, 0); // 第二个参数是旋转角度，这里设为0
-
-		_scene->update();
-		updatePosition();
-
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(shaderProgram);
 		glBindVertexArray(_vao);
-		glDrawElements(GL_TRIANGLES, 6 * num, GL_UNSIGNED_INT, 0);
+		glDrawElementsInstanced(
+			GL_TRIANGLES,      // 绘制模式
+			6*num,       // 索引数量
+			GL_UNSIGNED_INT,   // 索引类型
+			0,                 // 索引数组的偏移量
+			num     // 实例数量
+		);
 
 		glfwSwapBuffers(_window);
 		glfwPollEvents();
+		glfwPollEvents();
 	}
-
 }
-
-
 

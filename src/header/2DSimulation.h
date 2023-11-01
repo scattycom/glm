@@ -5,12 +5,11 @@
 #include<vector>
 
 
-struct point
+struct Sdata
 {
-	glm::vec3 p0;
-	glm::vec3 p1;
-	glm::vec3 p2;
-	glm::vec3 p3;
+	std::vector<glm::vec3> instance_old_pos;
+	std::vector<glm::vec3> instance_new_pos;
+	std::vector<float> instance_float;
 };
 
 class scene
@@ -33,21 +32,20 @@ class Render
 {
 public:
 	Render();
-
 	void init();
-	void createInstance();
-
 	void initVAO();
-	void updateVBO();
-
-	void SetShader();
+	void setshader();
 	void run();
-	void updatePosition();
 private:
-	void caculate(int i, glm::vec2 pos, float angle);
-
+	void createInstance()
+	{
+		num++;
+		_scene->createInstance();
+	}
+	void update();
+	void updateData();
 	GLFWwindow* _window;
-	GLuint _vao, _vbo, _ibo;
+	GLuint _vao, _vbo1, _vbo2, _vbo3;
 	std::unique_ptr<scene> _scene;
 	unsigned int shaderProgram;
 
