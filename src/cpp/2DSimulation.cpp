@@ -47,10 +47,10 @@ scene::scene() : _world(b2Vec2(0.0f, -9.8f)) // 初始化列表
 
 	// 设置两个顶点，创建一个倾斜的地面
 	b2Vec2 vertices[4];
-	vertices[0].Set(-2.0f, 0.0f); // 第一个顶点
-	vertices[1].Set(-2.0f, -0.5f);  // 第二个顶点
-	vertices[2].Set(2.0f, -0.8f);  // 第二个顶点
-	vertices[3].Set(2.0f, -1.3f);  // 第二个顶点
+	vertices[0].Set(-1.5f, 0.0f); // 第一个顶点
+	vertices[1].Set(-1.5f, -0.5f);  // 第二个顶点
+	vertices[2].Set( 1.5f, -0.8f);  // 第二个顶点
+	vertices[3].Set( 1.5f, -1.3f);  // 第二个顶点
 	groundShape.Set(vertices, 4);  // 设置顶点数组和顶点数
 
 	b2FixtureDef groundFixtureDef;
@@ -61,7 +61,7 @@ scene::scene() : _world(b2Vec2(0.0f, -9.8f)) // 初始化列表
 
 	// 创建左侧的板
 	b2BodyDef leftWallBodyDef;
-	leftWallBodyDef.position.Set(-1.5f, 0.0f); // 假设板的中心在 (-1.0, 0.5)
+	leftWallBodyDef.position.Set(-2.0f, 0.0f); // 假设板的中心在 (-1.0, 0.5)
 
 	b2Body* leftWallBody = _world.CreateBody(&leftWallBodyDef);
 
@@ -369,7 +369,7 @@ void Render::run()
 
 	while (!glfwWindowShouldClose(_window))
 	{
-		if (a % 1 == 0&&num<400)
+		if (a % 1 == 0)
 			createInstance();
 		a++;
 
@@ -379,7 +379,7 @@ void Render::run()
 		glBindVertexArray(_vao);
 		glDrawElementsInstanced(
 			GL_TRIANGLES,      // 绘制模式
-			6*num,       // 索引数量
+			6 * num,       // 索引数量
 			GL_UNSIGNED_INT,   // 索引类型
 			0,                 // 索引数组的偏移量
 			num     // 实例数量
