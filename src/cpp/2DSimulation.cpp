@@ -1,6 +1,7 @@
 #include"../header/2DSimulation.h"
 #include <iostream>
 #include <fstream>
+#include <random>
 
 #define count 100000
 static std::vector<b2Body*> list;
@@ -46,8 +47,8 @@ scene::scene() : _world(b2Vec2(0.0f, -9.8f)) // 初始化列表
 
 	// 设置两个顶点，创建一个倾斜的地面
 	b2Vec2 vertices[4];
-	vertices[0].Set(-1.0f, 0.0f); // 第一个顶点
-	vertices[1].Set(-1.0f, -0.5f);  // 第二个顶点
+	vertices[0].Set(-2.0f, 0.0f); // 第一个顶点
+	vertices[1].Set(-2.0f, -0.5f);  // 第二个顶点
 	vertices[2].Set(2.0f, -0.8f);  // 第二个顶点
 	vertices[3].Set(2.0f, -1.3f);  // 第二个顶点
 	groundShape.Set(vertices, 4);  // 设置顶点数组和顶点数
@@ -60,7 +61,7 @@ scene::scene() : _world(b2Vec2(0.0f, -9.8f)) // 初始化列表
 
 	// 创建左侧的板
 	b2BodyDef leftWallBodyDef;
-	leftWallBodyDef.position.Set(-0.8f, 0.0f); // 假设板的中心在 (-1.0, 0.5)
+	leftWallBodyDef.position.Set(-1.5f, 0.0f); // 假设板的中心在 (-1.0, 0.5)
 
 	b2Body* leftWallBody = _world.CreateBody(&leftWallBodyDef);
 
@@ -75,12 +76,12 @@ scene::scene() : _world(b2Vec2(0.0f, -9.8f)) // 初始化列表
 
 	// 创建右侧的板
 	b2BodyDef rightWallBodyDef;
-	rightWallBodyDef.position.Set(0.3f, 0.0f); // 假设板的中心在 (1.0, 0.5)
+	rightWallBodyDef.position.Set(2.1f, 0.0f); // 假设板的中心在 (1.0, 0.5)
 
 	rightWallBody = _world.CreateBody(&rightWallBodyDef);
 
 	b2PolygonShape rightWallBox;
-	rightWallBox.SetAsBox(0.3f, 5.0f); // 假设板的宽度为 0.02，高度为 0.5
+	rightWallBox.SetAsBox(0.1f, 5.0f); // 假设板的宽度为 0.02，高度为 0.5
 
 	b2FixtureDef rightWallFixtureDef;
 	rightWallFixtureDef.shape = &rightWallBox;
@@ -91,10 +92,16 @@ scene::scene() : _world(b2Vec2(0.0f, -9.8f)) // 初始化列表
 
 void scene::createInstance()
 {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(-1.0, 1.0);
+
+	double random_num1 = dis(gen);
+	double random_num2 = dis(gen);
 	// 创建方块
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(0.0f, 0.9f);
+	bodyDef.position.Set(random_num1, 1.5f);
 	b2Body* body = _world.CreateBody(&bodyDef);
 	body->SetBullet(true);
 	body->SetAngularDamping(0.8f); // 设置一个大于0的值，以便消耗方块的旋转能量
@@ -194,15 +201,15 @@ void Render::initVAO()
 
 	// 绑定和填充第一个VBO
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(s_data.instance_old_pos)*3*sizeof(float), &s_data.instance_old_pos[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, s_data.instance_old_pos.size() * 3 * sizeof(float), &s_data.instance_old_pos[0], GL_DYNAMIC_DRAW);
 
 	// 绑定和填充第二个VBO
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(s_data.instance_new_pos) * 3 * sizeof(float), &s_data.instance_new_pos[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, s_data.instance_new_pos.size() * 3 * sizeof(float), &s_data.instance_new_pos[0], GL_DYNAMIC_DRAW);
 
 	// 绑定和填充第三个VBO
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo3);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(s_data.instance_float) * 1 * sizeof(float), &s_data.instance_float[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, s_data.instance_float.size() * 1 * sizeof(float), &s_data.instance_float[0], GL_DYNAMIC_DRAW);
 
 	/*************实例属性1******************/
 	glBindVertexArray(_vao);
@@ -233,29 +240,29 @@ void Render::setshader()
 	const char* vertexShaderSource = R"glsl(
 #version 330 core
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 oldpos;
+layout (location = 1) in vec3 velocity;
 layout (location = 2) in vec3 newpos;
 layout (location = 3) in float rotate;
 
-out vec2 texCoord;
+out vec3 outcolor;
 
 void main()
 {
     // 平移到原点
-    vec3 posTranslated = aPos - oldpos;
+    vec4 posTranslated = vec4(aPos,1.0);
 
     // 旋转（仅在X, Y平面上）
     float cosTheta = cos(rotate);
     float sinTheta = sin(rotate);
-    vec3 posRotated;
+    vec4 posRotated;
     posRotated.x = cosTheta * posTranslated.x - sinTheta * posTranslated.y;
     posRotated.y = sinTheta * posTranslated.x + cosTheta * posTranslated.y;
     posRotated.z = posTranslated.z;  // 在Z轴上没有变化
+    posRotated.w=1.0;
 
     // 平移到新位置
-    vec3 posFinal = posRotated+newpos;
-
-    gl_Position = vec4(newpos, 1.0)+vec4(aPos,1.0);
+    gl_Position = posRotated + vec4(newpos,1.0);
+    outcolor=velocity;
 }
 )glsl";
 
@@ -263,10 +270,11 @@ void main()
 	const char* fragmentShaderSource = R"glsl(
 #version 330 core
 out vec4 FragColor;
-
+in vec3 outcolor;
 void main()
 {
-    FragColor = vec4(1.0, 0.5, 0.2, 1.0);
+    //FragColor = vec4(outcolor, 1.0);
+    FragColor = vec4(0.0,1.0,0.0, 1.0);
 }
 )glsl";
 
@@ -319,7 +327,7 @@ void Render::update()
 {
 	// 更新第一个VBO (_vbo1)
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo1);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, num*sizeof(float)*3, &s_data.instance_old_pos[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, num * sizeof(float) * 3, &s_data.instance_old_pos[0]);
 
 	// 更新第二个VBO (_vbo2)
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo2);
@@ -340,8 +348,11 @@ void Render::updateData()
 	{
 		b2Vec2 position = list[i]->GetPosition();
 		float rotate = list[i]->GetAngle() - old_float[i];
+		b2Vec2 speed = list[i]->GetLinearVelocity();
 
-		s_data.instance_old_pos[i] = s_data.instance_new_pos[i];
+		s_data.instance_old_pos[i].x = speed.x;
+		s_data.instance_old_pos[i].y = speed.y;
+
 		s_data.instance_new_pos[i].x = position.x;
 		s_data.instance_new_pos[i].y = position.y;
 		s_data.instance_float[i] = rotate;
@@ -355,12 +366,14 @@ void Render::run()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glViewport(0, 0, 800, 600);
 	int a = 0;
+
 	while (!glfwWindowShouldClose(_window))
 	{
-		updateData();
-		if (a % 50 == 0&&num<40)
+		if (a % 1 == 0&&num<400)
 			createInstance();
 		a++;
+
+		updateData();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(_vao);
