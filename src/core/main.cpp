@@ -85,34 +85,16 @@ struct Vertex {
 std::vector<Vertex> vertices; // 存储所有顶点
 std::vector<unsigned int> indices; // 存储所有索引
 
-void ProcessMesh(aiMesh* mesh) {
-	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-		Vertex vertex;
-		// 处理顶点位置
-		vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-		// 处理顶点法线
-		if (mesh->HasNormals()) {
-			vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-		}
-		// 处理其他顶点属性，如纹理坐标、切线等
-
-		vertices.push_back(vertex);
-	}
-
-	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-		aiFace face = mesh->mFaces[i];
-		for (unsigned int j = 0; j < face.mNumIndices; j++) {
-			indices.push_back(face.mIndices[j]);
-		}
-	}
-}
 
 void ProcessNode(aiNode* node, const aiScene* scene) {
+	// 处理当前节点的所有网格（如果有的话）
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		ProcessMesh(mesh);
+		// 在这里处理网格
+		std::cout << "Mesh name: " << mesh->mName.C_Str() << std::endl;
 	}
 
+	// 递归处理每个子节点
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		ProcessNode(node->mChildren[i], scene);
 	}
