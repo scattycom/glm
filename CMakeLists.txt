@@ -56,6 +56,10 @@ set_property(TARGET glfw PROPERTY FOLDER "ThirdPartyLibs")
 add_subdirectory(third_party/box2d)
 target_link_libraries(demo PRIVATE box2d)
 set_property(TARGET box2d PROPERTY FOLDER "ThirdPartyLibs")
+#assimp
+add_subdirectory(third_party/assimp)
+target_link_libraries(demo PRIVATE assimp)
+set_property(TARGET assimp PROPERTY FOLDER "ThirdPartyLibs")
 
 target_include_directories(demo PRIVATE third_party/glm)
 target_include_directories(demo PRIVATE third_party/glad/include)

@@ -2,6 +2,8 @@
 #include"src/header/2DSimulation.h"
 #include <Box2D/Box2D.h>
 #include <iostream>
+
+
 #if !ACTIVE
 int main()
 {
@@ -64,8 +66,80 @@ int main()
 #else
 #endif
 
-int main()
-{
-	Render* re = new Render;
-	re->run();
+//int main()
+//{
+//	Render* re = new Render;
+//	re->run();
+//}
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+struct Vertex {
+	glm::vec3 Position; // 位置
+	glm::vec3 Normal;   // 法线
+	// 你还可以添加其他顶点属性，比如纹理坐标、切线等
+};
+
+std::vector<Vertex> vertices; // 存储所有顶点
+std::vector<unsigned int> indices; // 存储所有索引
+
+void ProcessMesh(aiMesh* mesh) {
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+		Vertex vertex;
+		// 处理顶点位置
+		vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		// 处理顶点法线
+		if (mesh->HasNormals()) {
+			vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		}
+		// 处理其他顶点属性，如纹理坐标、切线等
+
+		vertices.push_back(vertex);
+	}
+
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+		aiFace face = mesh->mFaces[i];
+		for (unsigned int j = 0; j < face.mNumIndices; j++) {
+			indices.push_back(face.mIndices[j]);
+		}
+	}
 }
+
+void ProcessNode(aiNode* node, const aiScene* scene) {
+	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		ProcessMesh(mesh);
+	}
+
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
+		ProcessNode(node->mChildren[i], scene);
+	}
+}
+
+int main() {
+	Assimp::Importer importer;
+
+	// 在这里替换为你的模型文件路径
+	const std::string modelPath = "../../Room#1.obj";
+
+	// 读取模型文件
+	const aiScene* scene = importer.ReadFile(modelPath,
+		aiProcess_Triangulate |       // 将所有模型的所有面都转换为三角形
+		aiProcess_FlipUVs |           // 翻转y轴上的纹理坐标
+		aiProcess_CalcTangentSpace |  // 计算切线和副切线
+		aiProcess_GenNormals);        // 创建法线
+
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+		std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+		return -1;
+	}
+
+	// 处理Assimp的根节点
+	ProcessNode(scene->mRootNode, scene);
+
+	return 0;
+}
+
+
