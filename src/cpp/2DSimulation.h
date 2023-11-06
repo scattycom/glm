@@ -45,6 +45,9 @@ private:
 	}
 	void update();
 	void updateData();
+
+	static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+
 	GLFWwindow* _window;
 	GLuint _vao, _vbo1, _vbo2, _vbo3;
 	std::unique_ptr<scene> _scene;

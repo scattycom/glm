@@ -42,7 +42,7 @@ private:
 	float Pitch;
 	// 相机选项
 	float MovementSpeed = 1.0;
-	float MouseSensitivity;
+	float MouseSensitivity = 0.1;
 
 
 	void updateCameraVectors();

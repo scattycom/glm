@@ -172,7 +172,16 @@ void Render::init()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		return;
 	}
+
+	_camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	float lastX = SCR_WIDTH / 2.0;
+	float lastY = SCR_HEIGHT / 2.0;
+	bool firstMouse = true;
+
+	glfwSetWindowUserPointer(_window, _camera);
+
 	glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(_window, mouse_callback);
 
 	for (int i = 0; i != count; i++)
 	{
@@ -181,10 +190,6 @@ void Render::init()
 		s_data.instance_float.push_back(0.0);
 		old_float.push_back(0.0);
 	}
-	_camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-	float lastX = SCR_WIDTH / 2.0;
-	float lastY = SCR_HEIGHT / 2.0;
-	bool firstMouse = true;
 	initVAO();
 	setshader();
 
@@ -394,6 +399,28 @@ void Render::updateData()
 		old_float[i] = list[i]->GetAngle();
 	}
 	update();
+}
+
+void Render::mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	static float lastX = SCR_WIDTH / 2.0; // 屏幕宽度的一半
+	static float lastY = SCR_HEIGHT / 2.0; // 屏幕高度的一半
+	static bool firstMouse = true;
+
+	Camera* cam = static_cast<Camera*>(glfwGetWindowUserPointer(window));
+
+	if (firstMouse) {
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // 坐标系的y是从底部到顶部
+	lastX = xpos;
+	lastY = ypos;
+
+	cam->ProcessMouseMovement(xoffset, yoffset);
 }
 
 void Render::run()
