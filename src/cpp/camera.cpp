@@ -8,6 +8,10 @@ Camera::Camera(glm::vec3 position /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, glm::vec3 u
 	Up = up;
 	Front = glm::vec3(0, 0, -1);
 	Right = glm::vec3(1, 0, 0);
+
+	Yaw = -90.0f;
+	Pitch = 0.0f;
+	WorldUp = glm::vec3(0, 1,0);
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch /*= true*/)
@@ -36,9 +40,9 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 	if (direction == BACKWARD)
 		Position -= Front * velocity;
 	if (direction == LEFT)
-		Position += Right * velocity ;
+		Position -= Right * velocity ;
 	if (direction == RIGHT)
-		Position -= Right * velocity;
+		Position += Right * velocity;
 	if (direction == UP)
 		Position -= Up * velocity;
 	if (direction == DOWN)

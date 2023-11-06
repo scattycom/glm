@@ -185,7 +185,7 @@ void Render::init()
 	glfwSetWindowUserPointer(_window, _camera);
 
 	glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
-	//glfwSetCursorPosCallback(_window, mouse_callback);
+	glfwSetCursorPosCallback(_window, mouse_callback);
 
 	for (int i = 0; i != count; i++)
 	{
@@ -424,7 +424,10 @@ void Render::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	cam->ProcessMouseMovement(xoffset, yoffset);
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+		cam->ProcessMouseMovement(xoffset, yoffset);
+	}
+
 }
 
 void Render::run()
