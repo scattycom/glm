@@ -11,8 +11,8 @@ static std::vector<float> old_float;
 Sdata s_data;
 
 //·½¿é³ß´ç
-float sizeX = 0.05f;
-float sizeY = 0.05f;
+float sizeX = 0.025f;
+float sizeY = 0.025f;
 int SCR_WIDTH = 800;
 int SCR_HEIGHT = 600;
 void writeNameToFile(const std::string& name) {
@@ -136,6 +136,10 @@ void processInput(GLFWwindow* window, Camera* camera, float deltaTime) {
 		camera->ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera->ProcessKeyboard(RIGHT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		camera->ProcessKeyboard(UP, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		camera->ProcessKeyboard(DOWN, deltaTime);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -181,7 +185,7 @@ void Render::init()
 	glfwSetWindowUserPointer(_window, _camera);
 
 	glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(_window, mouse_callback);
+	//glfwSetCursorPosCallback(_window, mouse_callback);
 
 	for (int i = 0; i != count; i++)
 	{
