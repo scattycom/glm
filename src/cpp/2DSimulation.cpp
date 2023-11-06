@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <random>
+#include<glm/gtc/type_ptr.hpp>
 
 #define count 100000
 static std::vector<b2Body*> list;
@@ -10,9 +11,10 @@ static std::vector<float> old_float;
 Sdata s_data;
 
 //方块尺寸
-float sizeX = 0.025f;
-float sizeY = 0.025f;
-
+float sizeX = 0.05f;
+float sizeY = 0.05f;
+int SCR_WIDTH = 800;
+int SCR_HEIGHT = 600;
 void writeNameToFile(const std::string& name) {
 	// 创建一个输出文件流对象并打开文件
 	std::ofstream outfile("output.txt", std::ios::app);  // 打开模式 std::ios::app 表示在文件末尾追加
@@ -124,10 +126,34 @@ void scene::update()
 	_world.Step(timeStep, velocityIterations, positionIterations);
 }
 
+
+void processInput(GLFWwindow* window, Camera* camera, float deltaTime) {
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera->ProcessKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera->ProcessKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera->ProcessKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera->ProcessKeyboard(RIGHT, deltaTime);
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+	glViewport(0, 0, width, height);
+	SCR_WIDTH = width;
+	SCR_HEIGHT = height;
+}
+
 Render::Render()
 {
 	_scene = std::make_unique<scene>();
 	init();
+}
+
+Render::~Render()
+{
+	delete _camera;
+	_camera = nullptr;
 }
 
 void Render::init()
@@ -135,7 +161,7 @@ void Render::init()
 	if (!glfwInit())
 		return;
 
-	_window = glfwCreateWindow(800, 600, "FBO", NULL, NULL);
+	_window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "FBO", NULL, NULL);
 	if (!_window)
 	{
 		glfwTerminate();
@@ -146,6 +172,7 @@ void Render::init()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		return;
 	}
+	glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
 
 	for (int i = 0; i != count; i++)
 	{
@@ -154,7 +181,10 @@ void Render::init()
 		s_data.instance_float.push_back(0.0);
 		old_float.push_back(0.0);
 	}
-
+	_camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	float lastX = SCR_WIDTH / 2.0;
+	float lastY = SCR_HEIGHT / 2.0;
+	bool firstMouse = true;
 	initVAO();
 	setshader();
 
@@ -244,6 +274,9 @@ layout (location = 1) in vec3 velocity;
 layout (location = 2) in vec3 newpos;
 layout (location = 3) in float rotate;
 
+uniform mat4 projection;
+uniform mat4 view;
+
 out vec3 outcolor;
 
 void main()
@@ -261,7 +294,9 @@ void main()
     posRotated.w=1.0;
 
     // 平移到新位置
-    gl_Position = posRotated + vec4(newpos,1.0);
+    posRotated  = posRotated+vec4(newpos,1.0);
+
+    gl_Position = projection * view * posRotated;
     outcolor=velocity;
 }
 )glsl";
@@ -364,11 +399,18 @@ void Render::updateData()
 void Render::run()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 	int a = 0;
+	float lastFrame = 0.0f; // Time of last frame
 
 	while (!glfwWindowShouldClose(_window))
 	{
+		float currentFrame = glfwGetTime();
+		float deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		processInput(_window, _camera, deltaTime);
+
 		if (a % 1 == 0)
 			createInstance();
 		a++;
@@ -376,6 +418,17 @@ void Render::run()
 		updateData();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(shaderProgram);
+
+		glm::mat4 projection = glm::perspective(glm::radians(_camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = _camera->GetViewMatrix();
+
+		GLint projLoc = glGetUniformLocation(shaderProgram, "projection");
+		GLint viewLoc = glGetUniformLocation(shaderProgram, "view");
+
+		// 设置uniform变量
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
 		glBindVertexArray(_vao);
 		glDrawElementsInstanced(
 			GL_TRIANGLES,      // 绘制模式
@@ -386,7 +439,6 @@ void Render::run()
 		);
 
 		glfwSwapBuffers(_window);
-		glfwPollEvents();
 		glfwPollEvents();
 	}
 }

@@ -2,8 +2,8 @@
 #include <Box2D/Box2D.h>
 #include <memory>
 #include <glm/glm.hpp>
-#include<vector>
-
+#include <vector>
+#include "camera.h"
 
 struct Sdata
 {
@@ -32,6 +32,7 @@ class Render
 {
 public:
 	Render();
+	~Render();
 	void init();
 	void initVAO();
 	void setshader();
@@ -48,6 +49,7 @@ private:
 	GLuint _vao, _vbo1, _vbo2, _vbo3;
 	std::unique_ptr<scene> _scene;
 	unsigned int shaderProgram;
+	Camera* _camera;
 
 	int num = 0;
 };
