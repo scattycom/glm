@@ -1,10 +1,10 @@
-#include"src/header/TestFBO.h"
-#include"src/header/2DSimulation.h"
+#include"src/cpp/TestFBO.h"
+#include"src/cpp/2DSimulation.h"
 #include <Box2D/Box2D.h>
 #include <iostream>
 
 
-#if !ACTIVE
+#if 0
 int main()
 {
 	/*Render* test = new Render;
@@ -100,6 +100,7 @@ void ProcessNode(aiNode* node, const aiScene* scene) {
 	}
 }
 
+#if 0
 int main() {
 	Assimp::Importer importer;
 
@@ -123,5 +124,15 @@ int main() {
 
 	return 0;
 }
+#endif
 
+#if 1
+int main()
+{
+	Render* demo = new Render;
+	demo->run();
+
+}
+
+#endif
 

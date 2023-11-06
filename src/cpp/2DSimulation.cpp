@@ -1,4 +1,4 @@
-#include"../header/2DSimulation.h"
+#include"2DSimulation.h"
 #include <iostream>
 #include <fstream>
 #include <random>

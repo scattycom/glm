@@ -1,4 +1,4 @@
-#include "../header/TestFBO.h"
+#include "TestFBO.h"
 #include<iostream>
 
 void TestFBO::init()
