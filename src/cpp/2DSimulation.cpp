@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <random>
-#include<glm/gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #define count 100000
 static std::vector<b2Body*> list;

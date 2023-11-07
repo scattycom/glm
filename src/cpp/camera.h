@@ -1,3 +1,4 @@
+#pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -28,7 +29,7 @@ public:
 		return glm::lookAt(Position, Position + Front, Up);
 	}
 
-	void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
+	void ProcessMouseMovement(double xoffset, double yoffset);
 	void ProcessKeyboard(Camera_Movement direction, float deltaTime);
 
 	float Zoom;

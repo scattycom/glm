@@ -1,7 +1,6 @@
 #include"camera.h"
 #include <iostream>
 
-
 Camera::Camera(glm::vec3 position /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, glm::vec3 up /*= glm::vec3(0.0f, 1.0f, 0.0f)*/, float yaw /*= YAW*/, float pitch /*= PITCH*/)
 {
 	Position = position;
@@ -14,7 +13,7 @@ Camera::Camera(glm::vec3 position /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, glm::vec3 u
 	WorldUp = glm::vec3(0, 1,0);
 }
 
-void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch /*= true*/)
+void Camera::ProcessMouseMovement(double xoffset, double yoffset)
 {
 	xoffset *= MouseSensitivity;
 	yoffset *= MouseSensitivity;
@@ -22,12 +21,12 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPi
 	Yaw += xoffset;
 	Pitch += yoffset;
 
-	if (constrainPitch) {
-		if (Pitch > 89.0f)
-			Pitch = 89.0f;
-		if (Pitch < -89.0f)
-			Pitch = -89.0f;
-	}
+
+	if (Pitch > 89.0f)
+		Pitch = 89.0f;
+	if (Pitch < -89.0f)
+		Pitch = -89.0f;
+
 
 	updateCameraVectors();
 }

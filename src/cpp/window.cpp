@@ -22,6 +22,24 @@ namespace thunder
 			return;
 		}
 		glfwMakeContextCurrent(_window);
+		glfwSetWindowUserPointer(_window, this);
+
+		glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* Window, int width, int height) {
+			window* ptr = static_cast<window*>(glfwGetWindowUserPointer(Window));
+			if (ptr != nullptr)
+			{
+				ptr->setSize(width, height);
+			}
+		});
+
+		glfwSetCursorPosCallback(_window, [](GLFWwindow* Window,double xpos,double ypos) {
+			window* ptr = static_cast<window*>(glfwGetWindowUserPointer(Window));
+			if (ptr != nullptr)
+			{
+				ptr->GetCallBack()(xpos, ypos);
+			}
+		});
+
 	}
 
 
