@@ -10,12 +10,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 收集所有文件
 file(GLOB_RECURSE src "src/cpp/*.cpp" "src/cpp/*.h")
+file(GLOB_RECURSE vulkanapi "src/vulkanAPI/*.cpp" "src/vulkanAPI/*.h")
 file(GLOB_RECURSE core "src/core/*.cpp")
 file(GLOB_RECURSE shader_list "src/shaders/*.vert" "src/shaders/*.frag")
 
 # 添加文件到SOURCES列表
 list(APPEND SOURCES ${shader_list})
 list(APPEND SOURCES ${src})
+list(APPEND SOURCES ${vulkanapi})
 list(APPEND SOURCES ${core})
 list(APPEND SOURCES "third_party/glad/src/glad.c")
 
@@ -24,6 +26,7 @@ source_group("third_party" FILES "third_party/glad/src/glad.c")
 source_group("shaders" FILES ${shader_list})
 source_group("core" FILES ${core})
 source_group("src" FILES ${src})
+source_group("vulkanapi" FILES ${vulkanapi})
 
 # 添加一个可执行文件
 add_executable(Thunder ${SOURCES})
